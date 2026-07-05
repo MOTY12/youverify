@@ -1,0 +1,86 @@
+version: '3.9'
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  customer-service:
+    build: ./customer-service
+    container_name: customer-service
+    environment:
+      PORT: 3001
+      MONGO_URI: mongodb://mongodb:27017/customer_db
+      ORDER_SERVICE_URL: http://order-service:3003
+      SEED_DATA: 'true'
+    depends_on:
+      - mongodb
+      - order-service
+    ports:
+      - '3001:3001'
+
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    environment:
+      PORT: 3002
+      MONGO_URI: mongodb://mongodb:27017/product_db
+      SEED_DATA: 'true'
+    depends_on:
+      - mongodb
+    ports:
+      - '3002:3002'
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    environment:
+      PORT: 3003
+      MONGO_URI: mongodb://mongodb:27017/order_db
+      PRODUCT_SERVICE_URL: http://product-service:3002
+      PAYMENT_SERVICE_URL: http://payment-service:3004
+    depends_on:
+      - mongodb
+      - product-service
+      - payment-service
+    ports:
+      - '3003:3003'
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    environment:
+      PORT: 3004
+      MONGO_URI: mongodb://mongodb:27017/payment_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      RABBITMQ_QUEUE: transactions
+    depends_on:
+      - mongodb
+      - rabbitmq
+    ports:
+      - '3004:3004'
+
+  transaction-worker:
+    build: ./payment-service
+    container_name: transaction-worker
+    command: node worker.js
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/payment_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      RABBITMQ_QUEUE: transactions
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+volumes:
+  mongo-data:
