@@ -1,7 +1,7 @@
 {
   "name": "youverify",
   "version": "1.0.0",
-  "description": "",
+  "description": "Node.js/Express microservices demo for order and payment flow",
   "homepage": "https://github.com/MOTY12/youverify#readme",
   "bugs": {
     "url": "https://github.com/MOTY12/youverify/issues"
@@ -15,9 +15,23 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm --prefix customer-service test && npm --prefix order-service test && npm --prefix payment-service test && npm --prefix product-service test",
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down --volumes --remove-orphans",
+    "docker:build": "docker compose build",
+    "logs": "docker compose logs -f"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "amqplib": "^0.10.0",
+    "axios": "^1.7.1",
+    "dotenv": "^16.4.1",
+    "express": "^4.21.1",
+    "mongoose": "^8.9.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.0.0",
+    "supertest": "^7.0.0"
   }
 }

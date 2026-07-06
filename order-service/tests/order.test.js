@@ -3,6 +3,8 @@ const { createApp } = require('../app');
 const { connectDatabase, disconnectDatabase } = require('../../shared/config/database');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
+jest.setTimeout(120000);
+
 describe('order service', () => {
   let mongoServer;
 
@@ -10,6 +12,7 @@ describe('order service', () => {
     jest.setTimeout(120000);
     mongoServer = await MongoMemoryServer.create({ binary: { version: '7.0.14' } });
     await connectDatabase(mongoServer.getUri('order_test_db'));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   });
 
   afterAll(async () => {

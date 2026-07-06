@@ -4,6 +4,8 @@ const { connectDatabase, disconnectDatabase } = require('../../shared/config/dat
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const Product = require('../models/Product');
 
+jest.setTimeout(120000);
+
 describe('product service', () => {
   let mongoServer;
 
@@ -11,6 +13,7 @@ describe('product service', () => {
     jest.setTimeout(120000);
     mongoServer = await MongoMemoryServer.create({ binary: { version: '7.0.14' } });
     await connectDatabase(mongoServer.getUri('product_test_db'));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     await Product.deleteMany({});
     await Product.create({ productId: 'prod-001', name: 'Laptop', price: 999.99, description: '14-inch laptop' });
   });

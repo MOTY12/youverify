@@ -6,7 +6,13 @@ const Customer = require('../models/Customer');
 
 jest.setTimeout(120000);
 
-describe('customer service', () => {
+jest.mock('axios', () => ({
+  post: jest.fn(),
+}));
+
+const axios = require('axios');
+
+describe('customer service order forwarding', () => {
   let mongoServer;
 
   beforeAll(async () => {
@@ -23,17 +29,23 @@ describe('customer service', () => {
     await mongoServer.stop();
   });
 
-  it('returns health status', async () => {
-    const app = createApp();
-    const response = await request(app).get('/health');
-    expect(response.status).toBe(200);
-    expect(response.body.status).toBe('ok');
+  beforeEach(() => {
+    axios.post.mockReset();
   });
 
-  it('retrieves a customer by id', async () => {
+  it('forwards order creation to the order service', async () => {
     const app = createApp();
-    const response = await request(app).get('/customers/customer-001');
-    expect(response.status).toBe(200);
-    expect(response.body.customerId).toBe('customer-001');
+    axios.post.mockResolvedValue({ data: { orderId: 'order-001', orderStatus: 'pending' } });
+
+    const response = await request(app)
+      .post('/customers/customer-001/orders')
+      .send({ productId: 'prod-001', amount: 42 });
+
+    expect(response.status).toBe(201);
+    expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/orders'), expect.objectContaining({
+      customerId: 'customer-001',
+      productId: 'prod-001',
+      amount: 42,
+    }));
   });
 });

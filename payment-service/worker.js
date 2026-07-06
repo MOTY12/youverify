@@ -3,13 +3,27 @@ const { connectDatabase } = require('../shared/config/database');
 const { getEnv } = require('../shared/config/env');
 const Transaction = require('./models/Transaction');
 
+async function connectWithRetry(uri, retries = 10, delayMs = 3000) {
+  for (let attempt = 1; attempt <= retries; attempt += 1) {
+    try {
+      return await amqplib.connect(uri);
+    } catch (error) {
+      if (attempt === retries) {
+        throw error;
+      }
+      console.warn(`RabbitMQ connection attempt ${attempt} failed, retrying in ${delayMs}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
 async function startWorker() {
   const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/payment_db');
   const rabbitMqUrl = getEnv('RABBITMQ_URL', 'amqp://localhost:5672');
   const queueName = getEnv('RABBITMQ_QUEUE', 'transactions');
 
   await connectDatabase(mongoUri);
-  const connection = await amqplib.connect(rabbitMqUrl);
+  const connection = await connectWithRetry(rabbitMqUrl);
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
 
@@ -31,7 +45,11 @@ async function startWorker() {
   console.log('Transaction worker listening for messages');
 }
 
-startWorker().catch((error) => {
-  console.error('Transaction worker failed', error);
-  process.exit(1);
-});
+if (require.main === module) {
+  startWorker().catch((error) => {
+    console.error('Transaction worker failed', error);
+    process.exit(1);
+  });
+}
+
+module.exports = { startWorker };
