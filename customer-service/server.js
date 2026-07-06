@@ -17,7 +17,7 @@ async function seedCustomer() {
 async function start() {
   const app = createApp();
   const port = Number(getEnv('PORT', 3001));
-  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/customer_db');
+  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/youverify/customer_db');
 
   try {
     await connectDatabase(mongoUri);

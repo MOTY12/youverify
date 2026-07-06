@@ -1,9 +1,15 @@
+const mongoose = require('mongoose');
 const { createApp } = require('./app');
 const { connectDatabase } = require('../shared/config/database');
 const { getEnv } = require('../shared/config/env');
 const Product = require('./models/Product');
 
 async function seedProducts() {
+  if (!mongoose.connection.db) {
+    throw new Error('MongoDB connection not ready for product seeding');
+  }
+
+  await mongoose.connection.db.admin().ping();
   const count = await Product.countDocuments();
   if (count === 0) {
     await Product.create([
@@ -17,7 +23,7 @@ async function seedProducts() {
 async function start() {
   const app = createApp();
   const port = Number(getEnv('PORT', 3002));
-  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/product_db');
+  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/youverify/product_db');
 
   try {
     await connectDatabase(mongoUri);

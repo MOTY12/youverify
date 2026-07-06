@@ -18,7 +18,7 @@ async function connectWithRetry(uri, retries = 10, delayMs = 3000) {
 }
 
 async function startWorker() {
-  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/payment_db');
+  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/youverify/payment_db');
   const rabbitMqUrl = getEnv('RABBITMQ_URL', 'amqp://localhost:5672');
   const queueName = getEnv('RABBITMQ_QUEUE', 'transactions');
 

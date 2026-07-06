@@ -17,7 +17,7 @@ This repository contains a Node.js/Express microservices demo for an e-commerce 
 - Order service: http://localhost:3003
 - Payment service: http://localhost:3004
 - RabbitMQ UI: http://localhost:15672 (guest/guest)
-- MongoDB: mongodb://localhost:27017
+- MongoDB: mongodb://localhost:27017/youverify
 
 ## Run locally with Docker Compose
 

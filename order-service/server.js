@@ -5,7 +5,7 @@ const { getEnv } = require('../shared/config/env');
 async function start() {
   const app = createApp();
   const port = Number(getEnv('PORT', 3003));
-  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/order_db');
+  const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/youverify/order_db');
 
   try {
     await connectDatabase(mongoUri);

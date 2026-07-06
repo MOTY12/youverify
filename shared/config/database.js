@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
 
-function waitForConnection() {
+function waitForConnection(timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
-    if (mongoose.connection.readyState === 1) {
+    if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
       resolve(mongoose);
       return;
     }
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('MongoDB connection timed out waiting for open state'));
+    }, timeoutMs);
 
     const onOpen = () => {
       cleanup();
@@ -18,6 +23,7 @@ function waitForConnection() {
     };
 
     const cleanup = () => {
+      clearTimeout(timer);
       mongoose.connection.off('open', onOpen);
       mongoose.connection.off('error', onError);
     };
@@ -27,36 +33,40 @@ function waitForConnection() {
   });
 }
 
-async function connectDatabase(uri, options = {}, retries = 10, delayMs = 3000) {
+async function connectDatabase(uri, options = {}, retries = 12, delayMs = 2000) {
   if (!uri) {
     throw new Error('MongoDB URI is required');
   }
 
-  if (mongoose.connection.readyState === 1) {
-    return mongoose;
-  }
-
-  if (mongoose.connection.readyState === 2) {
-    await waitForConnection();
+  if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
     return mongoose;
   }
 
   const connectionOptions = {
-    serverSelectionTimeoutMS: 5000,
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 20000,
+    bufferCommands: false,
     ...options,
   };
 
   for (let attempt = 1; attempt <= retries; attempt += 1) {
     try {
+      if (mongoose.connection.readyState !== 0) {
+        await mongoose.disconnect();
+      }
+
       await mongoose.connect(uri, connectionOptions);
       await waitForConnection();
+      await mongoose.connection.db.admin().ping();
       return mongoose;
     } catch (error) {
       if (attempt === retries) {
         throw error;
       }
-      console.warn(`MongoDB connection attempt ${attempt} failed, retrying in ${delayMs}ms...`);
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      const backoffMs = Math.min(delayMs * attempt, 10000);
+      console.warn(`MongoDB connection attempt ${attempt} failed, retrying in ${backoffMs}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
     }
   }
 }
