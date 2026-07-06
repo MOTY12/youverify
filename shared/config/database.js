@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+mongoose.set('bufferCommands', false);
+
 function waitForConnection(timeoutMs = 15000) {
   return new Promise((resolve, reject) => {
     if (mongoose.connection.readyState === 1 && mongoose.connection.db) {

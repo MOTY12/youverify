@@ -2,21 +2,28 @@ const mongoose = require('mongoose');
 const { createApp } = require('./app');
 const { connectDatabase } = require('../shared/config/database');
 const { getEnv } = require('../shared/config/env');
-const Product = require('./models/Product');
 
 async function seedProducts() {
-  if (!mongoose.connection.db) {
-    throw new Error('MongoDB connection not ready for product seeding');
-  }
-
-  await mongoose.connection.db.admin().ping();
-  const count = await Product.countDocuments();
-  if (count === 0) {
-    await Product.create([
-      { productId: 'prod-001', name: 'Laptop', price: 999.99, description: '14-inch laptop' },
-      { productId: 'prod-002', name: 'Keyboard', price: 79.5, description: 'Mechanical keyboard' },
-      { productId: 'prod-003', name: 'Mouse', price: 39.0, description: 'Wireless mouse' },
-    ]);
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
+    try {
+      const collection = mongoose.connection.db.collection('products');
+      const count = await collection.countDocuments();
+      if (count === 0) {
+        await collection.insertMany([
+          { productId: 'prod-001', name: 'Laptop', price: 999.99, description: '14-inch laptop' },
+          { productId: 'prod-002', name: 'Keyboard', price: 79.5, description: 'Mechanical keyboard' },
+          { productId: 'prod-003', name: 'Mouse', price: 39.0, description: 'Wireless mouse' },
+        ]);
+      }
+      return;
+    } catch (error) {
+      if (attempt === 10) {
+        throw error;
+      }
+      const backoffMs = Math.min(2000 * attempt, 10000);
+      console.warn(`Product seeding attempt ${attempt} failed, retrying in ${backoffMs}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+    }
   }
 }
 
