@@ -1,6 +1,6 @@
-const Transaction = require('../models/Transaction');
+const Transaction = require('../src/models/Transaction');
 const { getEnv } = require('../../shared/config/env');
-const { publishToQueue } = require('../../shared/rabbitmq/client');
+const { publishToQueue } = require('../../../shared/rabbitmq/client');
 
 async function getHealth(req, res) {
   res.json({ status: 'ok', service: 'payment-service' });

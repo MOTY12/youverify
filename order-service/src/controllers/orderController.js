@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { randomUUID } = require('crypto');
-const Order = require('../models/Order');
-const { getEnv } = require('../../shared/config/env');
+const Order = require('../../src/models/Order');
+const { getEnv } = require('../../../shared/config/env');
 
 async function getHealth(req, res) {
   res.json({ status: 'ok', service: 'order-service' });

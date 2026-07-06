@@ -2,7 +2,7 @@ const request = require('supertest');
 const { createApp } = require('../app');
 const { connectDatabase, disconnectDatabase } = require('../../shared/config/database');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const Customer = require('../models/Customer');
+const Customer = require('../src/models/Customer');
 
 jest.setTimeout(120000);
 

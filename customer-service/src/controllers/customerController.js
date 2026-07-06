@@ -1,6 +1,6 @@
 const axios = require('axios');
 const Customer = require('../models/Customer');
-const { getEnv } = require('../../shared/config/env');
+const { getEnv } = require('../../../shared/config/env');
 
 async function getHealth(req, res) {
   res.json({ status: 'ok', service: 'customer-service' });

@@ -1,7 +1,7 @@
 const amqplib = require('amqplib');
 const { connectDatabase } = require('../shared/config/database');
 const { getEnv } = require('../shared/config/env');
-const Transaction = require('./models/Transaction');
+const Transaction = require('./src/models/Transaction');
 
 async function connectWithRetry(uri, retries = 10, delayMs = 3000) {
   for (let attempt = 1; attempt <= retries; attempt += 1) {

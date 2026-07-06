@@ -1,5 +1,5 @@
 const express = require('express');
-const paymentRoutes = require('./routes/payments');
+const paymentRoutes = require('./src/routes/payments');
 
 function createApp() {
   const app = express();

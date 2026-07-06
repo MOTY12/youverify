@@ -3,7 +3,7 @@ const { createApp } = require('../app');
 const { connectDatabase, disconnectDatabase } = require('../../shared/config/database');
 const { publishToQueue } = require('../../shared/rabbitmq/client');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const Transaction = require('../models/Transaction');
+const Transaction = require('../src/models/Transaction');
 
 jest.setTimeout(120000);
 

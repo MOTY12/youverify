@@ -1,5 +1,5 @@
 const express = require('express');
-const customerRoutes = require('./routes/customers');
+const customerRoutes = require('./src/routes/customers');
 
 function createApp() {
   const app = express();

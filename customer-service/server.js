@@ -1,7 +1,7 @@
 const { createApp } = require('./app');
 const { connectDatabase } = require('../shared/config/database');
 const { getEnv } = require('../shared/config/env');
-const Customer = require('./models/Customer');
+const Customer = require('./src/models/Customer');
 
 async function seedCustomer() {
   const existing = await Customer.findOne({ customerId: 'customer-001' });
