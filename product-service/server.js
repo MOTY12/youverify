@@ -38,7 +38,7 @@ async function seedProducts() {
 
 async function start() {
   const port = Number(getEnv('PORT', 3002));
-  const mongoUri = getEnv('MONGO_URI', 'mongodb+srv://dev:aCeHr1234@acehr.phurqzy.mongodb.net/assessments?retryWrites=true&w=majority&appName=Acehr');
+  const mongoUri = getEnv('MONGO_URI');
 
   try {
     await connectDatabase(mongoose, mongoUri);
