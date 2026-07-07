@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { createApp } = require('./app');
 const { connectDatabase } = require('../shared/config/database');
 const { getEnv } = require('../shared/config/env');
@@ -8,7 +9,7 @@ async function start() {
   const mongoUri = getEnv('MONGO_URI', 'mongodb://localhost:27017/youverify/payment_db');
 
   try {
-    await connectDatabase(mongoUri);
+    await connectDatabase(mongoose, mongoUri);
     app.listen(port, () => {
       console.log(`Payment service listening on port ${port}`);
     });

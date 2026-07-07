@@ -1,4 +1,5 @@
 const request = require('supertest');
+const mongoose = require('mongoose');
 const { createApp } = require('../app');
 const { connectDatabase, disconnectDatabase } = require('../../shared/config/database');
 const { MongoMemoryServer } = require('mongodb-memory-server');
@@ -12,15 +13,17 @@ describe('product service', () => {
   beforeAll(async () => {
     jest.setTimeout(120000);
     mongoServer = await MongoMemoryServer.create({ binary: { version: '7.0.14' } });
-    await connectDatabase(mongoServer.getUri('product_test_db'));
+    await connectDatabase(mongoose, mongoServer.getUri('product_test_db'));
     await new Promise((resolve) => setTimeout(resolve, 1000));
     await Product.deleteMany({});
     await Product.create({ productId: 'prod-001', name: 'Laptop', price: 999.99, description: '14-inch laptop' });
   });
 
   afterAll(async () => {
-    await disconnectDatabase();
-    await mongoServer.stop();
+    await disconnectDatabase(mongoose);
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
   });
 
   it('returns health status', async () => {

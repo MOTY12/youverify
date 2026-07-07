@@ -1,5 +1,5 @@
-const Transaction = require('../src/models/Transaction');
-const { getEnv } = require('../../shared/config/env');
+const Transaction = require('../../src/models/Transaction');
+const { getEnv } = require('../../../shared/config/env');
 const { publishToQueue } = require('../../../shared/rabbitmq/client');
 
 async function getHealth(req, res) {

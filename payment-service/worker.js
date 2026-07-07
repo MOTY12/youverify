@@ -1,4 +1,5 @@
 const amqplib = require('amqplib');
+const mongoose = require('mongoose');
 const { connectDatabase } = require('../shared/config/database');
 const { getEnv } = require('../shared/config/env');
 const Transaction = require('./src/models/Transaction');
@@ -22,7 +23,7 @@ async function startWorker() {
   const rabbitMqUrl = getEnv('RABBITMQ_URL', 'amqp://localhost:5672');
   const queueName = getEnv('RABBITMQ_QUEUE', 'transactions');
 
-  await connectDatabase(mongoUri);
+  await connectDatabase(mongoose, mongoUri);
   const connection = await connectWithRetry(rabbitMqUrl);
   const channel = await connection.createChannel();
   await channel.assertQueue(queueName, { durable: true });
